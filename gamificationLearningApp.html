@@ -1,0 +1,45 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ゲーミフィケーション学習最適化アプリ</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>ゲーミフィケーション学習最適化アプリ</h1>
+
+    <h2>感情メーター</h2>
+    <div class="emotion-meter">
+      <div class="emotion-slider"></div>
+    </div>
+    <div class="emotion-value">3</div>
+
+    <h2>ムードタグ</h2>
+    <div class="keyword-selection">
+      <span class="keyword">集中力MAX</span>
+      <span class="keyword">疲労困憊</span>
+      <span class="keyword">やる気満々</span>
+      <span class="keyword">モチベ低下</span>
+      <span class="keyword">ストレスMAX</span>
+      <span class="keyword">超リラックス</span>
+    </div>
+
+    <h2>今日の冒険日誌（オプション）</h2>
+    <textarea id="adventure-log" placeholder="今日の学習冒険について詳しく書いてください..."></textarea>
+
+    <h2>タスク入力</h2>
+    <input type="text" id="task-input" placeholder="取り組みたいタスクを入力してください（例：音読）">
+
+    <h2>学習クエスト最適化</h2>
+    <div id="optimization-result">
+      <p>あなたの現在の状態に基づいて、以下の学習クエストを提案します：</p>
+      <div id="quest-container"></div>
+    </div>
+
+    <button class="submit-button pulse">冒険を始める！</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

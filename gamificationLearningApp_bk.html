@@ -1,0 +1,312 @@
+<html><head><base href="https://websim.creation.engine/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ゲーミフィケーション学習最適化アプリ</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a2e;
+    color: #e0e0e0;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  h1, h2 {
+    color: #4db5ff;
+    text-shadow: 0 0 10px rgba(77, 181, 255, 0.5);
+  }
+  .emotion-meter {
+    background: linear-gradient(to right, #ff4d4d, #ffa64d, #ffff4d, #4dff4d, #4dffff);
+    height: 30px;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  .emotion-slider {
+    width: 40px;
+    height: 40px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    position: absolute;
+    top: -5px;
+    left: 0;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    transition: left 0.3s;
+  }
+  .emotion-value {
+    text-align: center;
+    font-size: 24px;
+    margin-top: 10px;
+    color: #4db5ff;
+  }
+  .keyword-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
+  }
+  .keyword {
+    padding: 10px 20px;
+    background-color: #16213e;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 0 5px rgba(77, 181, 255, 0.3);
+  }
+  .keyword.selected {
+    background-color: #4db5ff;
+    color: #1a1a2e;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(77, 181, 255, 0.7);
+  }
+  textarea, input[type="text"] {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #4db5ff;
+    border-radius: 10px;
+    resize: vertical;
+    background-color: #16213e;
+    color: #e0e0e0;
+  }
+  textarea {
+    height: 100px;
+  }
+  #optimization-result {
+    background-color: #16213e;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(77, 181, 255, 0.2);
+  }
+  .submit-button {
+    background-color: #4db5ff;
+    color: #1a1a2e;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s;
+  }
+  .submit-button:hover {
+    background-color: #3a8ac5;
+    transform: scale(1.05);
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  .pulse {
+    animation: pulse 2s infinite;
+  }
+  .quest-box {
+    background-color: #243b55;
+    border: 2px solid #4db5ff;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(77, 181, 255, 0.3);
+  }
+  .quest-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #4db5ff;
+    margin-bottom: 10px;
+  }
+  .quest-description {
+    margin-bottom: 10px;
+  }
+  .quest-steps {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  .quest-steps li {
+    margin-bottom: 5px;
+    padding-left: 20px;
+    position: relative;
+  }
+  .quest-steps li:before {
+    content: "✦";
+    position: absolute;
+    left: 0;
+    color: #4db5ff;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>ゲーミフィケーション学習最適化アプリ</h1>
+    
+    <h2>感情メーター</h2>
+    <div class="emotion-meter">
+      <div class="emotion-slider"></div>
+    </div>
+    <div class="emotion-value">3</div>
+    
+    <h2>ムードタグ</h2>
+    <div class="keyword-selection">
+      <span class="keyword">集中力MAX</span>
+      <span class="keyword">疲労困憊</span>
+      <span class="keyword">やる気満々</span>
+      <span class="keyword">モチベ低下</span>
+      <span class="keyword">ストレスMAX</span>
+      <span class="keyword">超リラックス</span>
+    </div>
+    
+    <h2>今日の冒険日誌（オプション）</h2>
+    <textarea id="adventure-log" placeholder="今日の学習冒険について詳しく書いてください..."></textarea>
+    
+    <h2>タスク入力</h2>
+    <input type="text" id="task-input" placeholder="取り組みたいタスクを入力してください（例：音読）">
+    
+    <h2>学習クエスト最適化</h2>
+    <div id="optimization-result">
+      <p>あなたの現在の状態に基づいて、以下の学習クエストを提案します：</p>
+      <div id="quest-container"></div>
+    </div>
+    
+    <button class="submit-button pulse">冒険を始める！</button>
+  </div>
+
+  <script>
+    const emotionSlider = document.querySelector('.emotion-slider');
+    const emotionValue = document.querySelector('.emotion-value');
+    const keywords = document.querySelectorAll('.keyword');
+    const questContainer = document.getElementById('quest-container');
+    const submitButton = document.querySelector('.submit-button');
+    const adventureLog = document.getElementById('adventure-log');
+    const taskInput = document.getElementById('task-input');
+
+    let currentEmotion = 3;
+
+    emotionSlider.style.left = `${(currentEmotion - 1) * 20}%`;
+
+    emotionSlider.addEventListener('mousedown', startDragging);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDragging);
+
+    emotionSlider.addEventListener('touchstart', startDragging);
+    document.addEventListener('touchmove', drag);
+    document.addEventListener('touchend', stopDragging);
+
+    let isDragging = false;
+
+    function startDragging(e) {
+      isDragging = true;
+      drag(e);
+    }
+
+    function stopDragging() {
+      isDragging = false;
+    }
+
+    function drag(e) {
+      if (!isDragging) return;
+      
+      const rect = document.querySelector('.emotion-meter').getBoundingClientRect();
+      const x = (e.clientX || e.touches[0].clientX) - rect.left;
+      const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+      
+      emotionSlider.style.left = `${percentage}%`;
+      currentEmotion = Math.round(percentage / 20) + 1;
+      emotionValue.textContent = currentEmotion;
+      
+      updateOptimization();
+    }
+
+    keywords.forEach(keyword => {
+      keyword.addEventListener('click', () => {
+        keyword.classList.toggle('selected');
+        updateOptimization();
+      });
+    });
+
+    adventureLog.addEventListener('input', updateOptimization);
+    taskInput.addEventListener('input', updateOptimization);
+
+    function updateOptimization() {
+      questContainer.innerHTML = '';
+      
+      const selectedKeywords = Array.from(keywords).filter(k => k.classList.contains('selected')).map(k => k.textContent);
+      const logContent = adventureLog.value.toLowerCase();
+      const task = taskInput.value.trim();
+
+      if (task) {
+        let difficulty = 'normal';
+        let repetitions = 3;
+        let duration = 15;
+
+        if (currentEmotion <= 2 || selectedKeywords.includes('モチベ低下') || selectedKeywords.includes('疲労困憊')) {
+          difficulty = 'easy';
+          repetitions = 2;
+          duration = 10;
+        } else if (currentEmotion >= 4 || selectedKeywords.includes('集中力MAX') || selectedKeywords.includes('やる気満々')) {
+          difficulty = 'hard';
+          repetitions = 5;
+          duration = 20;
+        }
+
+        createQuest(`${task}マスタークエスト`, `${task}のスキルを磨こう！`, [
+          `${difficulty === 'easy' ? '簡単な' : difficulty === 'hard' ? '難しい' : ''}${task}を${repetitions}回繰り返そう`,
+          `${duration}分間集中して${task}に取り組もう`,
+          `${task}の後、学んだことを3つ書き出してみよう`
+        ]);
+      }
+
+      if (currentEmotion <= 2 || selectedKeywords.includes('モチベ低下')) {
+        createQuest('小さな達成クエスト', 'レベルアップへの第一歩！', [
+          '簡単なタスクを1つ選んで完了させよう',
+          '5分間だけ集中して取り組んでみよう',
+          '今の気分を絵や言葉で表現してみよう'
+        ]);
+      }
+      
+      if (selectedKeywords.includes('ストレスMAX')) {
+        createQuest('リラックス魔法', '短い休憩で力を取り戻そう！', [
+          '深呼吸を10回してリラックスしよう',
+          '好きな音楽を聴きながら、目を閉じて3分間休憩しよう',
+          '外の景色を見ながら、見えるものを5つ書き出そう'
+        ]);
+      }
+
+      if (questContainer.innerHTML === '') {
+        createQuest('日常冒険モード', '新たな発見が待っている！', [
+          '今日学んだことを3つ書き出してみよう',
+          '明日の学習計画を立ててみよう',
+          '難しかった問題を1つ復習しよう'
+        ]);
+      }
+    }
+
+    function createQuest(title, description, steps) {
+      const questBox = document.createElement('div');
+      questBox.className = 'quest-box';
+      questBox.innerHTML = `
+        <div class="quest-title">${title}</div>
+        <div class="quest-description">${description}</div>
+        <ul class="quest-steps">
+          ${steps.map(step => `<li>${step}</li>`).join('')}
+        </ul>
+      `;
+      questContainer.appendChild(questBox);
+    }
+
+    submitButton.addEventListener('click', () => {
+      submitButton.classList.remove('pulse');
+      void submitButton.offsetWidth; // Force reflow
+      submitButton.classList.add('pulse');
+      alert('冒険の準備が整いました！最適化されたクエストに挑戦しよう！');
+    });
+
+    // 初期状態での最適化提案を表示
+    updateOptimization();
+  </script>
+</body>
+</html>
